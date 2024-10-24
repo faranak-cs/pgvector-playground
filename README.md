@@ -1,6 +1,6 @@
 # pgvector
 Open-source vector similarity search for Postgres - Postgres extension 
-## Installation
+## Create database
 - Pull down docker image:
 
 ```
@@ -43,7 +43,7 @@ CREATE DATABASE mydatabase;
 \c mydatabase
 ```
 
-## Embeddings
+## Store embeddings
 - Create vector extension:
 
 ```tsql
@@ -71,11 +71,41 @@ INSERT INTO items (embedding) VALUES ('[1,2,3]'), ('[4,5,6]'), ('[7,8,9]'), ('[1
 SELECT * FROM items;
 ```
 
+## Get distances
+- Print `cosine distance` values as compared to `[1,2,3]`:
 
+```sql
+SELECT embedding <=> '[1,2,3]' AS cosine_distance FROM items;
+```
 
+- Print `cosine similarity` values as compared to `[1,2,3]`:
 
+```sql
+SELECT 1 - (embedding <=> '[1,2,3]') AS cosine_similarity FROM items;
+```
 
+## Get embeddings
+- Print embeddings using cosine distance operator `<=>`:
 
+```sql
+SELECT * FROM items ORDER BY embedding <=> '[1,2,3]' LIMIT 3;
+```
 
+- Print embeddings using euclidean distance operator `<->` (L2 distance):
 
+```sql
+SELECT * FROM items ORDER BY embedding <-> '[1,2,3]' LIMIT 3;
+```
 
+- Print embeddings using manhattan distance operator `<+>` (L1 distance):
+
+```sql
+SELECT * FROM items ORDER BY embedding <+> '[1,2,3]' LIMIT 3;
+```
+
+## Products
+- Get similar products when product with `id = 1` is out-of-stock:
+
+```sql
+SELECT * FROM products WHERE id != 1 ORDER BY embedding <-> (SELECT embedding FROM products WHERE id = 1) LIMIT 5;
+```
