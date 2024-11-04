@@ -50,7 +50,7 @@ CREATE DATABASE mydatabase;
 CREATE EXTENSION vector;
 ```
 
-- Create table with fields i.e, `id` and `embedding` :
+- Create table with fields i.e, `id` and `embedding`:
 
 ```sql
 CREATE TABLE items (id bigserial PRIMARY KEY, embedding vector(3));
@@ -58,6 +58,12 @@ CREATE TABLE items (id bigserial PRIMARY KEY, embedding vector(3));
 > [!NOTE]
 > Field `embedding` has the datatype as `vector` with **3** dimensions.
 > Usually good embeddings model creates vectors with **1536** dimensions
+
+- Create index using HNSW:
+
+```sql
+CREATE INDEX items_idx ON items USING hnsw (embedding vector_l2_ops);
+```
 
 - Insert values:
 
