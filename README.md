@@ -115,3 +115,7 @@ SELECT * FROM items ORDER BY embedding <+> '[1,2,3]' LIMIT 3;
 ```sql
 SELECT * FROM products WHERE id != 1 ORDER BY embedding <-> (SELECT embedding FROM products WHERE id = 1) LIMIT 5;
 ```
+
+## Architecture Overview
+![arch_overview](https://github.com/user-attachments/assets/9db06963-64c8-4707-b26a-9b061d8557e4)
+
