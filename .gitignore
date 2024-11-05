@@ -1,1 +1,3 @@
 venv
+out/docs/arch_overview/arch_overview.svg
+__pycache__

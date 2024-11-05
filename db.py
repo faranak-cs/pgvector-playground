@@ -2,9 +2,10 @@
 ###### IMPORTS ######
 #####################
 
+from get_embeddings import get_embeddings
+import argparse
 import psycopg2
-import ollama
-from IPython.display import display_markdown, display_pretty
+# from IPython.display import display_markdown, display_pretty
 
 #####################
 ###### DATABASE #####
@@ -25,13 +26,22 @@ cur = conn.cursor()
 
 def main():
     # Generate embeddings
-    generate_embeddings()
+    # generate_embeddings()
 
     # Retrieve embeddings
-    retrieve_embeddings()
+    # retrieve_embeddings()
 
-    # Retrieve products
-    retrieve_products()
+    parser = argparse.ArgumentParser(description="Retrieve products using query")
+    parser.add_argument("user_query", type=str, help="Query to retrieve products")
+    args = parser.parse_args()
+    user_query = args.user_query
+    print(f"User query: {user_query}")
+
+    # Retrieve products using user query
+    retrieve_products_using_user_query(user_query)
+
+    # Retrieve products using product name
+    # retrieve_products_using_name()
 
 
 def generate_embeddings():
@@ -44,7 +54,7 @@ def generate_embeddings():
     # Generate embeddings
     for id, name, description in products:
         # Generate
-        embedding = ollama.embeddings(model='mxbai-embed-large', prompt=(description))['embedding']
+        embedding = get_embeddings(description)
         # Store
         cur.execute("INSERT INTO embeddings (id, embedding) VALUES (%s, %s)", (id, embedding))
         # Commit
@@ -74,7 +84,8 @@ def retrieve_embeddings():
     conn.close() 
 
 
-def retrieve_products():
+def retrieve_products_using_name():
+    # Retrieval based on cosine_similarity (1 - cosine_distance)
     query = """
             WITH temp AS (
                 SELECT embedding
@@ -84,10 +95,46 @@ def retrieve_products():
                 WHERE products.name = 'Backpack'
             )
                 SELECT id, name, description
-                FROM embeddings
-                JOIN products
+                FROM products
+                JOIN embeddings
                 USING (id)
-                WHERE embedding <=> (SELECT embedding FROM temp) < 0.5;
+                WHERE 1 - (embedding <=> (SELECT embedding FROM temp)) > 0.55 LIMIT 5;
+            """
+
+    # Execute a query
+    cur.execute(query)
+
+    # Retrieve query results
+    products = cur.fetchall()
+
+    # Print the results
+    for id, name, description in products:
+        print(f"Id: {id}, Name: {name}, Description: {description}")
+
+    # Close connection
+    conn.close()
+
+
+def retrieve_products_using_user_query(user_query):
+    # Generate the embedding
+    embedded_query = get_embeddings(user_query)
+     # Store the embedding
+    cur.execute("INSERT INTO user_query (user_query, embedded_query) VALUES (%s, %s)", (user_query, embedded_query))
+    # Commit the changes
+    conn.commit()
+
+    # Retrieval based on cosine_similarity (1 - cosine_distance)
+    query = f"""
+            WITH temp AS (
+                SELECT embedded_query
+                FROM user_query
+                WHERE id = 8
+            )
+                SELECT id, name, description
+                FROM products
+                JOIN embeddings
+                USING (id)
+                WHERE 1 - (embedding <=> (SELECT embedded_query FROM temp)) > 0.55 LIMIT 5;
             """
 
     # Execute a query
