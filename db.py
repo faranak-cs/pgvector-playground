@@ -25,12 +25,6 @@ cur = conn.cursor()
 #####################
 
 def main():
-    # Generate embeddings
-    # generate_embeddings()
-
-    # Retrieve embeddings
-    # retrieve_embeddings()
-
     parser = argparse.ArgumentParser(description="Retrieve products using query")
     parser.add_argument("user_query", type=str, help="Query to retrieve products")
     args = parser.parse_args()
@@ -39,9 +33,6 @@ def main():
 
     # Retrieve products using user query
     retrieve_products_using_user_query(user_query)
-
-    # Retrieve products using product name
-    # retrieve_products_using_name()
 
 
 def generate_embeddings():
@@ -87,19 +78,19 @@ def retrieve_embeddings():
 def retrieve_products_using_name():
     # Retrieval based on cosine_similarity (1 - cosine_distance)
     query = """
-            WITH temp AS (
-                SELECT embedding
-                FROM embeddings
-                JOIN products 
-                USING (id)
-                WHERE products.name = 'Backpack'
-            )
-                SELECT id, name, description
-                FROM products
-                JOIN embeddings
-                USING (id)
-                WHERE 1 - (embedding <=> (SELECT embedding FROM temp)) > 0.55 LIMIT 5;
-            """
+        WITH temp AS (
+            SELECT embedding
+            FROM embeddings
+            JOIN products 
+            USING (id)
+            WHERE products.name = 'Backpack'
+        )
+            SELECT id, name, description
+            FROM products
+            JOIN embeddings
+            USING (id)
+            WHERE 1 - (embedding <=> (SELECT embedding FROM temp)) > 0.55 LIMIT 5;
+    """
 
     # Execute a query
     cur.execute(query)
@@ -118,27 +109,41 @@ def retrieve_products_using_name():
 def retrieve_products_using_user_query(user_query):
     # Generate the embedding
     embedded_query = get_embeddings(user_query)
-     # Store the embedding
-    cur.execute("INSERT INTO user_query (user_query, embedded_query) VALUES (%s, %s)", (user_query, embedded_query))
+    # print(f"Embedded query: {embedded_query}")
+    
+    # Store the embedding
+    # cur.execute("INSERT INTO users (user_query, embedded_query) VALUES (%s, %s)", (user_query, embedded_query))
     # Commit the changes
-    conn.commit()
+    # conn.commit()
 
     # Retrieval based on cosine_similarity (1 - cosine_distance)
-    query = f"""
-            WITH temp AS (
-                SELECT embedded_query
-                FROM user_query
-                WHERE id = 8
-            )
-                SELECT id, name, description
-                FROM products
-                JOIN embeddings
-                USING (id)
-                WHERE 1 - (embedding <=> (SELECT embedded_query FROM temp)) > 0.55 LIMIT 5;
-            """
+    # query = f"""
+    #     WITH temp AS (
+    #         SELECT embedded_query
+    #         FROM users
+    #         WHERE user_query = %s
+    #         LIMIT 1
+    #     )
+    #         SELECT id, name, description
+    #         FROM products
+    #         JOIN embeddings
+    #         USING (id)
+    #         WHERE 1 - (embedding <=> (SELECT embedded_query FROM temp)) > 0.45 
+    #         LIMIT 5;
+    # """
+
+    query = """
+        SELECT id, name, description
+        FROM products
+        JOIN embeddings
+        USING (id)
+        WHERE 1 - (embedding <=> %s::vector) > 0.5 
+        LIMIT 5;
+    """
 
     # Execute a query
-    cur.execute(query)
+    # cur.execute(query, (user_query,))
+    cur.execute(query, (embedded_query,))
 
     # Retrieve query results
     products = cur.fetchall()
