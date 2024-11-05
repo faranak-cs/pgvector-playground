@@ -119,3 +119,7 @@ SELECT * FROM products WHERE id != 1 ORDER BY embedding <-> (SELECT embedding FR
 ## Architecture Overview
 ![arch_overview](https://github.com/user-attachments/assets/9db06963-64c8-4707-b26a-9b061d8557e4)
 
+## Useful Links
+- Follow the repo below for more basic understanding:
+    - https://github.com/pamelafox/pgvector-playground
+
