@@ -1,0 +1,20 @@
+@startuml
+
+skinparam responseMessageBelowArrow true
+
+package "Ollama" {
+  [mxbai-embed-large] as EM
+}
+
+package "Python App" {
+  [psycopg2] as PY
+}
+
+database "PostgreSQL" {
+  [pgvector] as PG
+}
+
+PG <.> PY: \tconnect & query\t
+PY <.> EM: \tembedding\t
+
+@enduml
