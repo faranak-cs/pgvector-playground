@@ -65,6 +65,12 @@ CREATE TABLE items (id bigserial PRIMARY KEY, embedding vector(3));
 CREATE INDEX items_idx ON items USING hnsw (embedding vector_l2_ops);
 ```
 
+- Get the indexes:
+
+```sql
+SELECT * FROM pg_indexes WHERE schemaname='public';
+```
+
 - Insert values:
 
 ```sql
