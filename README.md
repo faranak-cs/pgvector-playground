@@ -1,5 +1,6 @@
-# pgvector
+# Building RAG with PostgreSQL using pgvector
 Open-source vector similarity search for Postgres - Postgres extension 
+
 ## Create database
 - Pull down docker image:
 
