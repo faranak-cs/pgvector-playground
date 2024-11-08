@@ -1,3 +1,5 @@
+fastapi
 ollama
-psycopg2-binary
+psycopg2
 ipython
+uvicorn

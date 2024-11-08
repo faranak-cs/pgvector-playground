@@ -1,3 +1,4 @@
 venv
 out/docs/arch_overview/arch_overview.svg
 __pycache__
+.vscode/settings.json

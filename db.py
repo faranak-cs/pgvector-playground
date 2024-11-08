@@ -11,7 +11,7 @@ import psycopg2
 ###### DATABASE #####
 #####################
 
-conn = psycopg2.connect("dbname=<> user=<> password=<> host=<>")
+conn = psycopg2.connect("dbname=postgres user=postgres password=admin123 host=localhost")
 
 if (conn):
     print("Connected.")
