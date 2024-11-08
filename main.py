@@ -1,4 +1,6 @@
 from fastapi import FastAPI, Depends
+from fastapi.middleware.cors import CORSMiddleware
+
 from pydantic import BaseModel
 from typing import List
 import psycopg2
@@ -7,8 +9,18 @@ from get_embeddings import get_embeddings
 
 app = FastAPI()
 
+origins = [
+    "http://localhost",      
+    "http://localhost:5173/"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"]
+)
+
 def get_db():
-    conn = psycopg2.connect("dbname=postgres user=postgres password=admin123 host=localhost")
+    conn = psycopg2.connect("")
     try:
         yield conn
     finally:
